@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
+from car_booking import CarService, BookingService, WatchObserver
 from database import register_user, find_user_data_by_email
 from auth import login_user
 from password_recovery import recover_password
@@ -202,9 +203,121 @@ def show_logged_in_screen(root):
     tk.Label(root, text=f"Logged in as: {current_user.email}").pack()
     tk.Label(root, text=f"Balance: ${current_user.balance:.2f}").pack()
 
+    tk.Button(
+        root,
+        text="View Cars",
+        command=lambda: show_cars_screen(root)
+    ).pack(pady=5)
+
+    tk.Button(
+        root,
+        text="Add Car",
+        command=lambda: show_add_car_screen(root)
+    ).pack(pady=5)
+
+    tk.Button(
+        root,
+        text="Book Car",
+        command=lambda: show_booking_screen(root)
+    ).pack(pady=5)
+
     def logout_clicked():
         session.logout()
         messagebox.showinfo("Logged Out", "You have been logged out")
         show_login_screen(root)
 
     tk.Button(root, text="Logout", command=logout_clicked).pack(pady=10)
+
+def show_add_car_screen(root):
+    win = tk.Toplevel(root)
+    win.title("Add Car")
+
+    tk.Label(win, text="Car Model (e.g. Ford):").pack()
+    model = tk.Entry(win)
+    model.pack()
+
+    tk.Label(win, text="Year:").pack()
+    year = tk.Entry(win)
+    year.pack()
+
+    tk.Label(win, text="Mileage:").pack()
+    mileage = tk.Entry(win)
+    mileage.pack()
+
+    tk.Label(win, text="Location:").pack()
+    location = tk.Entry(win)
+    location.pack()
+
+    tk.Label(win, text="Price:").pack()
+    price = tk.Entry(win)
+    price.pack()
+
+    def submit():
+        model_val = model.get().strip()
+        year_val = year.get().strip()
+        mileage_val = mileage.get().strip()
+        location_val = location.get().strip()
+        price_val = price.get().strip()
+
+        if not model_val or not year_val or not mileage_val or not location_val or not price_val:
+            messagebox.showerror("Error", "All fields are required")
+            return
+
+        try:
+            year_val = int(year_val)
+            mileage_val = int(mileage_val)
+            price_val = float(price_val)
+        except ValueError:
+            messagebox.showerror("Error", "Year, mileage, and price must be numbers")
+            return
+
+        success, msg = CarService.add_car(
+            model_val,
+            year_val,
+            mileage_val,
+            location_val,
+            price_val
+        )
+
+        messagebox.showinfo("Result", msg)
+        win.destroy()
+
+    tk.Button(win, text="Add", command=submit).pack()
+
+def show_cars_screen(root):
+    win = tk.Toplevel(root)
+    win.title("Cars")
+
+    from car_booking import CarService
+    cars = CarService.get_all_cars()
+
+    for c in cars:
+        tk.Label(win, text=str(c)).pack()
+
+def show_booking_screen(root):
+    win = tk.Toplevel(root)
+    win.title("Book Car")
+
+    tk.Label(win, text="Car ID (number from car list):").pack()
+    car_id = tk.Entry(win)
+    car_id.pack()
+
+    tk.Label(win, text="Start Date (YYYY-MM-DD):").pack()
+    start = tk.Entry(win)
+    start.pack()
+
+    tk.Label(win, text="End Date (YYYY-MM-DD):").pack()
+    end = tk.Entry(win)
+    end.pack()
+
+    def submit():
+        from car_booking import BookingService
+        success, msg = BookingService.book_car(
+            int(car_id.get()),
+            start.get(),
+            end.get()
+        )
+        from tkinter import messagebox
+        messagebox.showinfo("Booking Status", msg)
+
+    tk.Button(win, text="Book", command=submit).pack()

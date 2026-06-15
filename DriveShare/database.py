@@ -118,3 +118,149 @@ def reset_password(email, new_password):
 
     conn.commit()
     conn.close()
+
+def create_game_tables():
+        conn = connect()
+        cursor = conn.cursor()
+
+        # Cars table
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS cars
+                       (
+                           car_id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           owner_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           model
+                           TEXT
+                           NOT
+                           NULL,
+                           year
+                           INTEGER
+                           NOT
+                           NULL,
+                           mileage
+                           INTEGER,
+                           location
+                           TEXT
+                           NOT
+                           NULL,
+                           price
+                           REAL
+                           NOT
+                           NULL,
+                           available
+                           INTEGER
+                           DEFAULT
+                           1
+                       )
+                       """)
+
+        # Bookings table
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS bookings
+                       (
+                           booking_id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           car_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           renter_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           start_date
+                           TEXT
+                           NOT
+                           NULL,
+                           end_date
+                           TEXT
+                           NOT
+                           NULL,
+                           total_price
+                           REAL
+                           NOT
+                           NULL
+                       )
+                       """)
+
+        # Watch list (Observer pattern)
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS watch_list
+                       (
+                           watch_id
+                           INTEGER
+                           PRIMARY
+                           KEY
+                           AUTOINCREMENT,
+                           user_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           car_id
+                           INTEGER
+                           NOT
+                           NULL,
+                           target_price
+                           REAL,
+                           notify_on_available
+                           INTEGER
+                           DEFAULT
+                           1
+                       )
+                       """)
+
+        conn.commit()
+        conn.close()
+
+def create_game_tables():
+    conn = connect()
+    cursor = conn.cursor()
+
+    # CAR LISTINGS
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cars (
+            car_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            owner_id INTEGER NOT NULL,
+            model TEXT NOT NULL,
+            year INTEGER NOT NULL,
+            mileage INTEGER,
+            location TEXT NOT NULL,
+            price REAL NOT NULL,
+            available INTEGER DEFAULT 1
+        )
+    """)
+
+    # BOOKINGS
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS bookings (
+            booking_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            car_id INTEGER NOT NULL,
+            renter_id INTEGER NOT NULL,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            total_price REAL NOT NULL
+        )
+    """)
+
+    # OBSERVER (WATCH LIST)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS watch_list (
+            watch_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            car_id INTEGER NOT NULL,
+            target_price REAL
+        )
+    """)
+
+    conn.commit()
+    conn.close()
