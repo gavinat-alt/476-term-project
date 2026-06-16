@@ -8,6 +8,12 @@ from database import register_user, find_user_data_by_email
 from auth import login_user
 from password_recovery import recover_password
 from session_manager import SessionManager
+from payment import PaymentProxy
+from messaging import MessageService
+from mediator import UIMediator
+
+
+ui_mediator = UIMediator()
 
 
 def clear_window(root):
@@ -17,6 +23,11 @@ def clear_window(root):
 
 def show_login_screen(root):
     clear_window(root)
+
+    ui_mediator.register(
+        "login_screen",
+        lambda: show_login_screen(root)
+    )
 
     tk.Label(root, text="DriveShare Login", font=("Arial", 18)).pack(pady=10)
 
@@ -200,8 +211,19 @@ def show_logged_in_screen(root):
         return
 
     tk.Label(root, text="Welcome to DriveShare", font=("Arial", 18)).pack(pady=10)
+    tk.Label(root, text=f"User ID: {current_user.userID}").pack()
     tk.Label(root, text=f"Logged in as: {current_user.email}").pack()
-    tk.Label(root, text=f"Balance: ${current_user.balance:.2f}").pack()
+
+    from database import get_user_balance
+
+    balance_label = tk.Label(root)
+    balance_label.pack()
+
+    def refresh_balance():
+        balance = get_user_balance(current_user.userID)
+        balance_label.config(text=f"Balance: ${balance:.2f}")
+
+    refresh_balance()
 
     tk.Button(
         root,
@@ -219,6 +241,30 @@ def show_logged_in_screen(root):
         root,
         text="Book Car",
         command=lambda: show_booking_screen(root)
+    ).pack(pady=5)
+
+    tk.Button(
+        root,
+        text="Make Payment",
+        command=lambda: show_payment_screen(root)
+    ).pack(pady=5)
+
+    tk.Button(
+        root,
+        text="Send Message",
+        command=lambda: show_send_message_screen(root)
+    ).pack(pady=5)
+
+    tk.Button(
+        root,
+        text="View Messages",
+        command=lambda: show_messages_screen(root)
+    ).pack(pady=5)
+
+    tk.Button(
+        root,
+        text="Rental History",
+        command=lambda: show_history_screen(root)
     ).pack(pady=5)
 
     def logout_clicked():
@@ -311,13 +357,168 @@ def show_booking_screen(root):
     end.pack()
 
     def submit():
-        from car_booking import BookingService
+
+        try:
+            car_num = int(car_id.get())
+        except ValueError:
+            messagebox.showerror(
+                "Error",
+                "Car ID must be a number"
+            )
+            return
+
         success, msg = BookingService.book_car(
-            int(car_id.get()),
+            car_num,
             start.get(),
             end.get()
         )
-        from tkinter import messagebox
-        messagebox.showinfo("Booking Status", msg)
+
+        if success:
+            messagebox.showinfo(
+                "Booking Status",
+                msg
+            )
+        else:
+            messagebox.showerror(
+                "Booking Status",
+                msg
+            )
 
     tk.Button(win, text="Book", command=submit).pack()
+
+def show_payment_screen(root):
+
+    win = tk.Toplevel(root)
+    win.title("Payment")
+
+    tk.Label(
+        win,
+        text="Booking ID:"
+    ).pack()
+
+    booking_id = tk.Entry(win)
+    booking_id.pack()
+
+    def submit():
+
+        try:
+            booking_num = int(
+                booking_id.get()
+            )
+        except ValueError:
+            messagebox.showerror(
+                "Error",
+                "Booking ID must be a number"
+            )
+            return
+
+        success, msg = PaymentProxy.process_payment(booking_num)
+
+        if success:
+            messagebox.showinfo("Payment", msg)
+            show_logged_in_screen(root)  # <-- ADD THIS
+        else:
+            messagebox.showerror("Payment", msg)
+
+    tk.Button(
+        win,
+        text="Pay"
+    ,
+        command=submit
+    ).pack(pady=10)
+
+def show_send_message_screen(root):
+
+    win = tk.Toplevel(root)
+    win.title("Send Message")
+
+    tk.Label(
+        win,
+        text="Receiver User ID:"
+    ).pack()
+
+    receiver = tk.Entry(win)
+    receiver.pack()
+
+    tk.Label(
+        win,
+        text="Message:"
+    ).pack()
+
+    message_box = tk.Entry(win, width=40)
+    message_box.pack()
+
+    def submit():
+
+        try:
+            receiver_id = int(receiver.get())
+        except ValueError:
+            messagebox.showerror(
+                "Error",
+                "Receiver ID must be a number"
+            )
+            return
+
+        success, msg = MessageService.send_message(
+            receiver_id,
+            message_box.get()
+        )
+
+        if success:
+            messagebox.showinfo(
+                "Message",
+                msg
+            )
+            win.destroy()
+        else:
+            messagebox.showerror(
+                "Message",
+                msg
+            )
+
+    tk.Button(
+        win,
+        text="Send",
+        command=submit
+    ).pack(pady=10)
+
+def show_messages_screen(root):
+
+    win = tk.Toplevel(root)
+    win.title("My Messages")
+
+    messages = MessageService.get_my_messages()
+
+    if not messages:
+        tk.Label(
+            win,
+            text="No messages"
+        ).pack()
+        return
+
+    for msg in messages:
+
+        tk.Label(
+            win,
+            text=f"From User {msg[0]}: {msg[1]}"
+        ).pack()
+
+def show_history_screen(root):
+    win = tk.Toplevel(root)
+    win.title("Rental History")
+
+    session = SessionManager()
+    user = session.get_current_user()
+
+    from car_booking import BookingService
+    history = BookingService.get_user_history(user.userID)
+
+    if not history:
+        tk.Label(win, text="No rentals found").pack()
+        return
+
+    for h in history:
+        tk.Label(
+            win,
+            text=f"Booking #{h[0]} | Car {h[1]} | {h[2]} → {h[3]} | ${h[4]}"
+        ).pack()

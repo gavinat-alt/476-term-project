@@ -1,5 +1,6 @@
 from database import connect
 from session_manager import SessionManager
+from models import CarBuilder
 from datetime import datetime
 
 class CarService:
@@ -12,13 +13,31 @@ class CarService:
         if not user:
             return False, "Not logged in"
 
+        car = (
+            CarBuilder()
+            .set_owner_id(user.userID)
+            .set_model(model)
+            .set_year(year)
+            .set_mileage(mileage)
+            .set_location(location)
+            .set_price(price)
+            .build()
+        )
+
         conn = connect()
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO cars (owner_id, model, year, mileage, location, price)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (user.userID, model, year, mileage, location, price))
+                       INSERT INTO cars (owner_id, model, year, mileage, location, price)
+                       VALUES (?, ?, ?, ?, ?, ?)
+                       """, (
+                           car["owner_id"],
+                           car["model"],
+                           car["year"],
+                           car["mileage"],
+                           car["location"],
+                           car["price"]
+                       ))
 
         conn.commit()
         conn.close()
@@ -107,3 +126,27 @@ class WatchObserver:
         conn.close()
 
         return True, "Car added to watch list"
+
+from database import connect
+
+class BookingService:
+
+    @staticmethod
+    def get_user_history(user_id):
+        conn = connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT b.booking_id,
+                   b.car_id,
+                   b.start_date,
+                   b.end_date,
+                   b.total_price
+            FROM bookings b
+            WHERE b.renter_id = ?
+        """, (user_id,))
+
+        data = cursor.fetchall()
+        conn.close()
+
+        return data

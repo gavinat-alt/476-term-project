@@ -30,6 +30,38 @@ class Car:
         self.year = year
         self.location = location
         self.price = price
+
+class CarBuilder:
+
+    def __init__(self):
+        self.car_data = {}
+
+    def set_owner_id(self, owner_id):
+        self.car_data["owner_id"] = owner_id
+        return self
+
+    def set_model(self, model):
+        self.car_data["model"] = model
+        return self
+
+    def set_year(self, year):
+        self.car_data["year"] = year
+        return self
+
+    def set_mileage(self, mileage):
+        self.car_data["mileage"] = mileage
+        return self
+
+    def set_location(self, location):
+        self.car_data["location"] = location
+        return self
+
+    def set_price(self, price):
+        self.car_data["price"] = price
+        return self
+
+    def build(self):
+        return self.car_data
         
 
 class Booking:

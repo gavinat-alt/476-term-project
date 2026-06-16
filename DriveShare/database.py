@@ -119,108 +119,6 @@ def reset_password(email, new_password):
     conn.commit()
     conn.close()
 
-def create_game_tables():
-        conn = connect()
-        cursor = conn.cursor()
-
-        # Cars table
-        cursor.execute("""
-                       CREATE TABLE IF NOT EXISTS cars
-                       (
-                           car_id
-                           INTEGER
-                           PRIMARY
-                           KEY
-                           AUTOINCREMENT,
-                           owner_id
-                           INTEGER
-                           NOT
-                           NULL,
-                           model
-                           TEXT
-                           NOT
-                           NULL,
-                           year
-                           INTEGER
-                           NOT
-                           NULL,
-                           mileage
-                           INTEGER,
-                           location
-                           TEXT
-                           NOT
-                           NULL,
-                           price
-                           REAL
-                           NOT
-                           NULL,
-                           available
-                           INTEGER
-                           DEFAULT
-                           1
-                       )
-                       """)
-
-        # Bookings table
-        cursor.execute("""
-                       CREATE TABLE IF NOT EXISTS bookings
-                       (
-                           booking_id
-                           INTEGER
-                           PRIMARY
-                           KEY
-                           AUTOINCREMENT,
-                           car_id
-                           INTEGER
-                           NOT
-                           NULL,
-                           renter_id
-                           INTEGER
-                           NOT
-                           NULL,
-                           start_date
-                           TEXT
-                           NOT
-                           NULL,
-                           end_date
-                           TEXT
-                           NOT
-                           NULL,
-                           total_price
-                           REAL
-                           NOT
-                           NULL
-                       )
-                       """)
-
-        # Watch list (Observer pattern)
-        cursor.execute("""
-                       CREATE TABLE IF NOT EXISTS watch_list
-                       (
-                           watch_id
-                           INTEGER
-                           PRIMARY
-                           KEY
-                           AUTOINCREMENT,
-                           user_id
-                           INTEGER
-                           NOT
-                           NULL,
-                           car_id
-                           INTEGER
-                           NOT
-                           NULL,
-                           target_price
-                           REAL,
-                           notify_on_available
-                           INTEGER
-                           DEFAULT
-                           1
-                       )
-                       """)
-
-        conn.commit()
-        conn.close()
 
 def create_game_tables():
     conn = connect()
@@ -262,5 +160,76 @@ def create_game_tables():
         )
     """)
 
+
+    # PAYMENTS
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS payments (
+            payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            booking_id INTEGER NOT NULL,
+            renter_id INTEGER NOT NULL,
+            owner_id INTEGER NOT NULL,
+            amount REAL NOT NULL,
+            payment_date TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+
+    # MESSAGES
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            message_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender_id INTEGER NOT NULL,
+            receiver_id INTEGER NOT NULL,
+            message_text TEXT NOT NULL,
+            sent_date TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS payments
+                   (
+                       payment_id
+                       INTEGER
+                       PRIMARY
+                       KEY
+                       AUTOINCREMENT,
+                       booking_id
+                       INTEGER,
+                       renter_id
+                       INTEGER,
+                       owner_id
+                       INTEGER,
+                       amount
+                       REAL
+                   )
+                   """)
+
+
     conn.commit()
     conn.close()
+
+def get_user_balance(user_id):
+    conn = connect()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT balance FROM users WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+
+    conn.close()
+    return result[0] if result else 0
+
+def fix_car_ownership():
+    conn = connect()
+    cursor = conn.cursor()
+
+    # change ALL cars owned by user 5 → user 1 (example)
+    cursor.execute("""
+        UPDATE cars
+        SET owner_id = 1
+        WHERE owner_id = 5
+    """)
+
+    conn.commit()
+    conn.close()
+
+    print("Car ownership fixed")
