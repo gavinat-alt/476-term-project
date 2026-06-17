@@ -1,5 +1,8 @@
 from database import connect
-
+## this function checks if there are any users watching a car that has just been updated with 
+# a new price, and if so, prints a notification for each user whose target price is met or exceeded 
+# by the new price. This allows users to be notified when a car they are interested in becomes
+# available at a price they are willing to pay.
 def check_watch_notifications(car_id, new_price):
     conn = connect()
     cursor = conn.cursor()

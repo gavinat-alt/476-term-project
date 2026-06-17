@@ -2,7 +2,12 @@
 
 from database import find_user_data_by_email, reset_password
 
-
+## This file implements the password recovery logic using a chain of responsibility 
+# pattern for checking the user's answers to their security questions. 
+# The SecurityQuestionHandler class represents a single security question and its correct answer, 
+# and can be linked to another handler to form a chain. The recover_password function builds 
+# the chain based on the user's stored security questions and checks the provided answers 
+# before allowing a password reset.
 class SecurityQuestionHandler:
     def __init__(self, correct_answer):
         self.correct_answer = correct_answer.lower().strip()

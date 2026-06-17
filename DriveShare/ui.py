@@ -21,7 +21,7 @@ def clear_window(root):
         widget.destroy()
 
 
-def show_login_screen(root):
+def show_login_screen(root): # this is the main login screen that users see when they open the app
     clear_window(root)
 
     ui_mediator.register(
@@ -47,7 +47,7 @@ def show_login_screen(root):
             messagebox.showerror("Error", "Email and password are required")
             return
         
-        if login_user(email, password):
+        if login_user(email, password): # use the login_user function from auth.py to attempt login
             messagebox.showinfo("Success", "Login successful")
             show_logged_in_screen(root)
         else:
@@ -58,7 +58,7 @@ def show_login_screen(root):
     tk.Button(root, text="Forgot Password", command=lambda: show_recovery_screen(root)).pack(pady=5)
 
 
-def show_register_screen(root):
+def show_register_screen(root): # this is a new function to show the registration screen
     clear_window(root)
 
     tk.Label(root, text="Create Account", font=("Arial", 18)).pack(pady=10)
@@ -123,7 +123,7 @@ def show_register_screen(root):
     tk.Button(root, text="Back to Login", command=lambda: show_login_screen(root)).pack(pady=5)
 
 
-def show_recovery_screen(root):
+def show_recovery_screen(root): # this is a new function to show the password recovery screen
     clear_window(root)
 
     tk.Label(root, text="Password Recovery", font=("Arial", 18)).pack(pady=10)
@@ -151,7 +151,7 @@ def show_recovery_screen(root):
     new_password_entry = tk.Entry(root, show="*")
     new_password_entry.pack()
 
-    def load_questions():
+    def load_questions(): # load the security questions for the given email when the user clicks the "Load Security Questions" button
         email = email_entry.get().strip().lower()
 
         if email == "":
@@ -200,7 +200,7 @@ def show_recovery_screen(root):
     tk.Button(root, text="Back to Login", command=lambda: show_login_screen(root)).pack(pady=5)
 
 
-def show_logged_in_screen(root):
+def show_logged_in_screen(root): # this is the main screen that logged-in users see, with options to view cars, book cars, etc.
     clear_window(root)
 
     session = SessionManager()
@@ -274,7 +274,7 @@ def show_logged_in_screen(root):
 
     tk.Button(root, text="Logout", command=logout_clicked).pack(pady=10)
 
-def show_add_car_screen(root):
+def show_add_car_screen(root): # this is a new function to show the screen for adding a car (only accessible to logged-in users)
     win = tk.Toplevel(root)
     win.title("Add Car")
 
@@ -330,7 +330,7 @@ def show_add_car_screen(root):
 
     tk.Button(win, text="Add", command=submit).pack()
 
-def show_cars_screen(root):
+def show_cars_screen(root): # this is a new function to show the screen that lists all cars available for rent
     win = tk.Toplevel(root)
     win.title("Cars")
 
@@ -340,7 +340,7 @@ def show_cars_screen(root):
     for c in cars:
         tk.Label(win, text=str(c)).pack()
 
-def show_booking_screen(root):
+def show_booking_screen(root): # this is a new function to show the screen for booking a car (only accessible to logged-in users)
     win = tk.Toplevel(root)
     win.title("Book Car")
 
@@ -356,7 +356,7 @@ def show_booking_screen(root):
     end = tk.Entry(win)
     end.pack()
 
-    def submit():
+    def submit(): # when the user clicks the "Book" button, attempt to book the car with the given ID and dates
 
         try:
             car_num = int(car_id.get())
@@ -386,7 +386,7 @@ def show_booking_screen(root):
 
     tk.Button(win, text="Book", command=submit).pack()
 
-def show_payment_screen(root):
+def show_payment_screen(root): # this is a new function to show the screen for making a payment for a booking (only accessible to logged-in users)
 
     win = tk.Toplevel(root)
     win.title("Payment")
@@ -427,7 +427,7 @@ def show_payment_screen(root):
         command=submit
     ).pack(pady=10)
 
-def show_send_message_screen(root):
+def show_send_message_screen(root): # this is a new function to show the screen for sending a message to another user (only accessible to logged-in users)
 
     win = tk.Toplevel(root)
     win.title("Send Message")
@@ -448,7 +448,7 @@ def show_send_message_screen(root):
     message_box = tk.Entry(win, width=40)
     message_box.pack()
 
-    def submit():
+    def submit(): # when the user clicks the "Send" button, attempt to send the message to the given receiver ID
 
         try:
             receiver_id = int(receiver.get())
@@ -482,7 +482,7 @@ def show_send_message_screen(root):
         command=submit
     ).pack(pady=10)
 
-def show_messages_screen(root):
+def show_messages_screen(root): # this is a new function to show the screen that lists all messages received by the logged-in user
 
     win = tk.Toplevel(root)
     win.title("My Messages")
@@ -503,7 +503,7 @@ def show_messages_screen(root):
             text=f"From User {msg[0]}: {msg[1]}"
         ).pack()
 
-def show_history_screen(root):
+def show_history_screen(root): # this is a new function to show the screen that lists the rental history of the logged-in user
     win = tk.Toplevel(root)
     win.title("Rental History")
 

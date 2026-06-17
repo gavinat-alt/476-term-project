@@ -5,7 +5,7 @@ from models import User
 from session_manager import SessionManager
 
 
-def login_user(email, password):
+def login_user(email, password): # return True if login successful, False otherwise
     email = email.strip().lower()
     user_data = find_user_data_by_email(email)
 
@@ -22,8 +22,8 @@ def login_user(email, password):
             balance=user_data[3]
         )
 
-        session = SessionManager()
-        session.login(user)
+        session = SessionManager() # get the singleton session manager instance
+        session.login(user) # log the user in by setting the current user in the session manager
 
         return True
 

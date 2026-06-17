@@ -3,7 +3,12 @@
 import sqlite3
 import hashlib
 
-
+##this file contains all the database-related functions for the application,
+# including connecting to the database, creating tables, seeding sample data, 
+# and performing queries related to user registration, login, password recovery,
+# car listings, bookings, payments, and messaging. The functions in this file are used by other 
+# parts of the application to interact with the database and perform necessary operations for the 
+# application's functionality.
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 

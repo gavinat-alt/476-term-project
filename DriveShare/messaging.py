@@ -1,7 +1,8 @@
 from database import connect
 from session_manager import SessionManager
 
-
+## this file implements the messaging functionality of the application, 
+# allowing users to send messages to each other and view their received messages.
 class MessageService:
 
     @staticmethod

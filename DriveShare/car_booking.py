@@ -3,6 +3,12 @@ from session_manager import SessionManager
 from models import CarBuilder
 from datetime import datetime
 
+## this class implements the main business logic for the car booking functionality of the application, including checking car availability, making a booking, and retrieving a user's rental history. 
+# The BookingService class contains static methods for these operations, 
+# and interacts with the database to perform the necessary queries and updates. 
+# The WatchObserver class allows users to add cars to a watch list with a target price, 
+# and the check_watch_notifications function in notifications.py can be used to notify users 
+# when a car they are watching becomes available.
 class CarService:
 
     @staticmethod
