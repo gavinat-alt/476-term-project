@@ -107,6 +107,27 @@ class BookingService:
 
         return True, "Booking successful"
 
+    @staticmethod
+    def get_user_history(user_id):
+        conn = connect()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+                       SELECT b.booking_id,
+                              b.car_id,
+                              b.start_date,
+                              b.end_date,
+                              b.total_price
+                       FROM bookings b
+                       WHERE b.renter_id = ?
+                       """, (user_id,))
+
+        data = cursor.fetchall()
+
+        conn.close()
+        return data
+
+
 class WatchObserver:
 
     @staticmethod
@@ -128,25 +149,3 @@ class WatchObserver:
         return True, "Car added to watch list"
 
 from database import connect
-
-class BookingService:
-
-    @staticmethod
-    def get_user_history(user_id):
-        conn = connect()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT b.booking_id,
-                   b.car_id,
-                   b.start_date,
-                   b.end_date,
-                   b.total_price
-            FROM bookings b
-            WHERE b.renter_id = ?
-        """, (user_id,))
-
-        data = cursor.fetchall()
-        conn.close()
-
-        return data
