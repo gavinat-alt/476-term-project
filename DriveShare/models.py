@@ -1,5 +1,6 @@
 # --- model classes ---
-
+## this file defines the main data models for the application, 
+# including the User, Car, and Booking classes.
 class User:
     def __init__(self, userID, email, password_hash, balance=0.0):
         self.userID = userID

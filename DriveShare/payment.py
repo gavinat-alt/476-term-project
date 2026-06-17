@@ -1,7 +1,10 @@
 from database import connect
 from session_manager import SessionManager
 
-
+## this class implements the payment processing logic using a proxy pattern. 
+# The RealPayment class contains the actual logic for processing a payment for a booking, 
+# while the PaymentProxy class checks if the user is logged in before allowing the payment 
+# to be processed. This ensures that only authenticated users can make payments for their bookings.
 class RealPayment:
 
     @staticmethod
